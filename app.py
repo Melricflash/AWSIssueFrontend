@@ -7,16 +7,29 @@ from dotenv import load_dotenv
 load_dotenv()
 app = Flask(__name__)
 
+# Reading from environmental variables
 aws_access_key = os.getenv('AWS_ACCESS_KEY')
 aws_secret_key = os.getenv('AWS_SECRET_KEY')
 aws_region = os.getenv('AWS_DEFAULT_REGION')
-p1Url = os.getenv('p1Queue_URL')
 
+p1Url = os.getenv('p1Queue_URL')
+p2Url = os.getenv('p2Queue_URL')
+p3Url = os.getenv('p3Queue_URL')
+
+# AWS SQS Setup
 sqs = boto3.client('sqs',
                    aws_access_key_id = aws_access_key,
                    aws_secret_access_key = aws_secret_key,
                    region_name = aws_region # Move to environment later
                    )
+
+# Dictionary to map priority to a queue URL
+priorityMapper = {
+    "1": p1Url,
+    "2": p2Url,
+    "3": p3Url
+}
+
 
 '''
 {
@@ -37,7 +50,9 @@ def send_to_queue():
         description = data["description"]
         priority = data["priority"]
 
-        queue_url = p1Url
+        # Get the right queue according to the priority
+        queue_url = priorityMapper[str(priority)]
+        print(queue_url)
 
         message = {
             "title": title,
