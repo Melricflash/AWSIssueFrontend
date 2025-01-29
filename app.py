@@ -1,7 +1,7 @@
 import os
 
 import boto3
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template, url_for, redirect
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -44,15 +44,20 @@ def send_to_queue():
     # Check if function accessed from a POST
     if request.method == "POST":
         # Parse JSON response
-        data = request.get_json()
-        print(data)
-        title = data["title"]
-        description = data["description"]
-        priority = data["priority"]
+        # data = request.get_json()
+        # print(data)
+        # title = data["title"]
+        # description = data["description"]
+        # priority = data["priority"]
+
+        title = request.form['title']
+        description = request.form['description']
+        priority = request.form['priority']
+
+        print(title, description, priority)
 
         # Get the right queue according to the priority
         queue_url = priorityMapper[str(priority)]
-        print(queue_url)
 
         message = {
             "title": title,
@@ -71,4 +76,4 @@ def send_to_queue():
     # Send to correct queue according to priority
 
     # If request is GET
-    return "<h1> Test </h1>"
+    return render_template('index.html')
