@@ -54,6 +54,9 @@ def send_to_queue():
         description = request.form['description']
         priority = request.form['priority']
 
+        if not title or not description or priority not in priorityMapper:
+            return jsonify({'message': 'Form invalid, please try again!'}), 500
+
         print(title, description, priority)
 
         # Get the right queue according to the priority
@@ -66,7 +69,9 @@ def send_to_queue():
 
         try:
             sqs.send_message(QueueUrl = queue_url, MessageBody = str(message))
-            return jsonify({'message': 'Successfully sent message to AWS SQS!'}), 200
+            #return jsonify({'message': 'Successfully sent message to AWS SQS!'}), 200
+            print("Successfully sent to AWS SQS!")
+            return redirect(url_for("send_to_queue"))
         except Exception as err:
             print(f"Failed to send to SQS: {err}")
             # Return an error if an issue occurred when sending to queue
