@@ -28,10 +28,10 @@ jobs:
 
       - name: Build, tag and push to Public ECR
         env:
-          ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
+          ECR_REPO_NAME: ${{ secrets.ECR_REPO_NAME }}
           IMAGE_TAG: msfrontend
         run: |
-          PUBLIC_ECR_URI="public.ecr.aws/e3m0x0s5/microservices"
+          PUBLIC_ECR_URI="public.ecr.aws/e3m0x0s5/$(ECR_REPO_NAME)"
           docker build -t $PUBLIC_ECR_URI/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $PUBLIC_ECR_URI/$ECR_REPOSITORY:$IMAGE_TAG
 
