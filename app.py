@@ -1,11 +1,12 @@
 import os
 
 import boto3
-from flask import Flask, jsonify, request, render_template, url_for, redirect
+from flask import Flask, jsonify, request, render_template, url_for, redirect, flash
 from dotenv import load_dotenv
 
 load_dotenv()
 app = Flask(__name__)
+app.secret_key = os.urandom(24)
 
 # Reading from environmental variables
 aws_access_key = os.getenv('AWS_ACCESS_KEY')
@@ -58,9 +59,9 @@ def send_to_queue():
             description = request.form['description']
             priority = request.form['priority']
 
-        print(title)
-        print(description)
-        print(type(priority))
+        # print(title)
+        # print(description)
+        # print(type(priority))
 
         if not title or not description or priority not in priorityMapper:
             return jsonify({'message': 'Invalid Form / Invalid JSON Request, please try again!'}), 500
@@ -75,9 +76,11 @@ def send_to_queue():
 
         try:
             sqs.send_message(QueueUrl = queue_url, MessageBody = str(message))
-            #return jsonify({'message': 'Successfully sent message to AWS SQS!'}), 200
             print("Successfully sent to AWS SQS!")
+            #return jsonify({'message': 'Successfully sent message to AWS SQS!'}), 200
+            flash('Successfully sent message!', 'success')  # Flash a success message
             return redirect(url_for("send_to_queue"))
+
         except Exception as err:
             print(f"Failed to send to SQS: {err}")
             # Return an error if an issue occurred when sending to queue
