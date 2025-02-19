@@ -43,21 +43,27 @@ priorityMapper = {
 def send_to_queue():
     # Check if function accessed from a POST
     if request.method == "POST":
-        # Parse JSON response
-        # data = request.get_json()
-        # print(data)
-        # title = data["title"]
-        # description = data["description"]
-        # priority = data["priority"]
+        if request.is_json:
+            # Parse JSON response from API
+            data = request.get_json()
+            title = data.get("title")
+            description = data.get("description")
+            priority = data.get("priority")
+            # Ensure that the priority is a string to be able to be mapped to
+            priority = str(priority)
 
-        title = request.form['title']
-        description = request.form['description']
-        priority = request.form['priority']
+        else:
+            # Parse form response if not sent using JSON
+            title = request.form['title']
+            description = request.form['description']
+            priority = request.form['priority']
+
+        print(title)
+        print(description)
+        print(type(priority))
 
         if not title or not description or priority not in priorityMapper:
-            return jsonify({'message': 'Form invalid, please try again!'}), 500
-
-        print(title, description, priority)
+            return jsonify({'message': 'Invalid Form / Invalid JSON Request, please try again!'}), 500
 
         # Get the right queue according to the priority
         queue_url = priorityMapper[str(priority)]
