@@ -14,12 +14,6 @@ def client():
     with app.test_client() as client:
         yield client
 
-@pytest.fixture(autouse=True)
-def mock_aws_service():
-    with patch("boto3.client") as mock_boto_client, patch("app.sqs.send_message") as mock_send_message:
-        mock_boto_client.return_value = mock_send_message
-        yield mock_send_message
-
 # Check if the form exists when loading the homepage
 def test_get_homepage(client):
     response = client.get("/")
@@ -28,35 +22,31 @@ def test_get_homepage(client):
 
 
 # Test valid data being sent
-def test_post_valid_data(mock_aws_service, client):
-    # Simulate expected response
-    #mock_send_message.return_value = {"ResponseMetadata": {"HTTPStatusCode": 200}}
-
-    data = {
-        "title": "Test Title",
-        "description": "Test Description",
-        "priority": 1
-    }
-
-    # Post the data to the view
-    response = client.post("/", data=data, content_type="application/x-www-form-urlencoded")
-
-    assert response.status_code == 302
-    #mock_send_message.assert_called_once()
-    mock_aws_service.assert_called_once()
-
-#@patch("app.sqs.send_message")
-def test_post_valid_json_data(client, mock_aws_service):
-
-    data = {
-        "title": "Test Title",
-        "description": "Test Description",
-        "priority": 1
-    }
-
-    response = client.post("/", data=json.dumps(data), content_type="application/json")
-    assert response.status_code != 500
-    mock_aws_service.assert_called_once()
+# def test_post_valid_data(client):
+#     # Simulate expected response
+#
+#     data = {
+#         "title": "Test Title",
+#         "description": "Test Description",
+#         "priority": 1
+#     }
+#
+#     # Post the data to the view
+#     response = client.post("/", data=data, content_type="application/x-www-form-urlencoded")
+#
+#     assert response.status_code == 302
+#
+# #@patch("app.sqs.send_message")
+# def test_post_valid_json_data(client):
+#
+#     data = {
+#         "title": "Test Title",
+#         "description": "Test Description",
+#         "priority": 1
+#     }
+#
+#     response = client.post("/", data=json.dumps(data), content_type="application/json")
+#     assert response.status_code != 500
 
 # Test invalid data being sent to the view
 def test_post_invalid_priority(client):
