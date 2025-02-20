@@ -58,8 +58,7 @@ jobs:
         run: |
           docker build -t $ECR_REPOSITORY_URI:$IMAGE_TAG .
           docker push $ECR_REPOSITORY_URI:$IMAGE_TAG
-          docker run aquasec/trivy
-          trivy image --severity HIGH $ECR_REPOSITORY_URI:$IMAGE_TAG
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image --severity HIGH $ECR_REPOSITORY_URI:$IMAGE_TAG
           
           
 
