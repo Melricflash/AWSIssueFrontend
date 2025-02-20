@@ -60,7 +60,17 @@ jobs:
           docker push $ECR_REPOSITORY_URI:$IMAGE_TAG
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image --severity HIGH $ECR_REPOSITORY_URI:$IMAGE_TAG
           
-          
+  sonarqube:
+    name: SonarQube
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}        
 
 
 
