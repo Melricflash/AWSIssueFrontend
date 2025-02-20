@@ -50,13 +50,26 @@ jobs:
           aws ecr-public get-login-password --region ${{ secrets.AWS_REGION }} | \
           docker login --username AWS --password-stdin public.ecr.aws
 
-      - name: Build, tag and push to Public ECR
+      - name: Build and tag image
         env:
           ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
           IMAGE_TAG: msfrontend
           ECR_REPOSITORY_URI: ${{ secrets.ECR_REPOSITORY_URI}}
         run: |
           docker build -t $ECR_REPOSITORY_URI:$IMAGE_TAG .
+        
+      - name: Run Trivy scanner on image
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: $ECR_REPOSITORY_URI:$IMAGE_TAG
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Push image to ECR
+        run: |
           docker push $ECR_REPOSITORY_URI:$IMAGE_TAG
 
 
