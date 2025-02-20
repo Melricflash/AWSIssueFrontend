@@ -61,12 +61,8 @@ jobs:
         
       - name: Run Trivy scanner on image
         uses: aquasecurity/trivy-action@0.28.0
-        env:
-          ECR_REPOSITORY: ${{ secrets.ECR_REPO_NAME }}
-          IMAGE_TAG: msfrontend
-          ECR_REPOSITORY_URI: ${{ secrets.ECR_REPOSITORY_URI}}
         with:
-          image-ref: $ECR_REPOSITORY_URI:$IMAGE_TAG
+          image-ref: '${{ env.ECR_REPOSITORY_URI }}:${{ env.IMAGE_TAG }}'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
