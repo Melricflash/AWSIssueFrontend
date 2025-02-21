@@ -33,3 +33,47 @@ def test_send_to_queue_json(client, setup_sqs_queues):
     # Check for redirect after successful response
     assert response.status_code == 302
 
+# Test to check invalid priority in json
+def test_send_invalid_json(client, setup_sqs_queues):
+
+    # Create a mock json request
+    payload = {
+        "title": "Test Title",
+        "description": "Test Description",
+        "priority": 9
+    }
+
+    # Send POST to the view
+    response = client.post("/", json=payload)
+
+    assert response.status_code == 500
+
+
+# Test to check missing json fields
+def test_send_missing_json(client, setup_sqs_queues):
+
+    # Create a mock json request
+    payload = {
+        "title": "Test Title"
+    }
+
+    # Send POST to the view
+    response = client.post("/", json=payload)
+
+    assert response.status_code == 500
+
+# Test to check invalid priority in json
+def test_send_empty_json(client, setup_sqs_queues):
+
+    # Create a mock json request
+    payload = {
+        "title": "",
+        "description": "",
+        "priority": 1
+    }
+
+    # Send POST to the view
+    response = client.post("/", json=payload)
+
+    assert response.status_code == 500
+
