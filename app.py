@@ -73,7 +73,7 @@ def ask_llm(prompt):
     model_response = json.loads(llm_response["body"].read())
     response_text = model_response["results"][0]["outputText"]
 
-    print(response_text)
+    # print(response_text)
 
     return response_text
 
@@ -113,7 +113,7 @@ def send_to_queue():
 
         message = {
             "title": title,
-            "description": description + "\nSuggestion from evil LLM:\n" + response_text
+            "description": description + "\n\n**Suggestion from evil LLM:**\n\n" + response_text
         }
 
         try:
