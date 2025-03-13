@@ -47,10 +47,11 @@ priorityMapper = {
 }
 '''
 
+# Function to invoke an LLM for a quick fix suggestion
 def ask_llm(prompt):
     # Invoke the LLM
     native_request = {
-        "inputText": prompt,
+        "inputText": "You are acting as a professional software engineer, responding to issues from a user. You are not allowed to ask for extra information but must give a suggested solution for other IT engineers. Here is your prompt. "+ prompt,
         "textGenerationConfig": {
             "maxTokenCount": 512,
             "temperature": 0.5
@@ -112,7 +113,7 @@ def send_to_queue():
 
         message = {
             "title": title,
-            "description": description + "\n" + response_text
+            "description": description + "\nSuggestion from evil LLM:\n" + response_text
         }
 
         try:
