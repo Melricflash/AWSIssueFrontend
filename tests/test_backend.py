@@ -18,7 +18,10 @@ def test_queue_setup():
     assert len(result["QueueUrls"]) == 3
 
 # Test to check a successful payload
-def test_send_to_queue_json(client, setup_sqs_queues):
+def test_send_to_queue_json(client, setup_sqs_queues, mocker):
+
+    # Patch out LLM functionality
+    mocker.patch("app.ask_llm", return_value = "Test LLM")
 
     # Create a mock json request
     payload = {

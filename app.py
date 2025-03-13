@@ -1,3 +1,4 @@
+import json
 import os
 
 import boto3
@@ -24,6 +25,12 @@ sqs = boto3.client('sqs',
                    region_name = aws_region # Move to environment later
                    )
 
+# Bedrock client for LLM stuff, note that its region locked
+bedrock_client = boto3.client("bedrock-runtime", region_name = "us-east-1")
+
+# Set the model
+model_id = "amazon.titan-text-express-v1"
+
 # Dictionary to map priority to a queue URL
 priorityMapper = {
     "1": p1Url,
@@ -39,6 +46,37 @@ priorityMapper = {
     "priority": 1
 }
 '''
+
+def ask_llm(prompt):
+    # Invoke the LLM
+    native_request = {
+        "inputText": prompt,
+        "textGenerationConfig": {
+            "maxTokenCount": 512,
+            "temperature": 0.5
+        }
+    }
+
+    # Convert to JSON
+    llm_request = json.dumps(native_request)
+
+    llm_response = None
+
+    try:
+        llm_response = bedrock_client.invoke_model(modelId=model_id, body=llm_request)
+
+    except Exception as err:
+        print(f"Failed to invoke model: {err}")
+
+    # Decode and retrieve the model response
+    model_response = json.loads(llm_response["body"].read())
+    response_text = model_response["results"][0]["outputText"]
+
+    print(response_text)
+
+    return response_text
+
+
 # allow methods GET and POST, if GET show the form, if POST start sending to queue
 @app.route("/", methods = ["GET", "POST"])
 def send_to_queue():
@@ -69,9 +107,12 @@ def send_to_queue():
         # Get the right queue according to the priority
         queue_url = priorityMapper[str(priority)]
 
+        # Invoke LLM
+        response_text = ask_llm(title + ": " + description)
+
         message = {
             "title": title,
-            "description": description,
+            "description": description + "\n" + response_text
         }
 
         try:
